@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Reviews the current branch as a pull request — explains what it accomplishes, its approach, and senior-developer code review feedback with improvement suggestions. Use when the user asks to review a PR, review the current branch, summarize branch changes, explain what a branch is trying to do, or wants senior dev feedback before opening or merging a PR.
+description: Reviews the current branch like a PR — intent, approach, and senior dev feedback. Use when reviewing PRs or branches, summarizing changes, or seeking feedback before opening or merging.
 ---
 
 # Review PR
