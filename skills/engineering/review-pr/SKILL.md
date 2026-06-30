@@ -32,23 +32,55 @@ If the user names a **base branch**, substitute it for `BASE` in the gather scri
 Unless the user says **thorough review**, always begin with the fast path — then apply [adaptive depth](#adaptive-depth) if warranted.
 
 1. Run the gather script below (one round-trip). **Use shell permissions that allow GitHub API access** (`required_permissions: ["all"]` or `["full_network"]`) — without this, `gh` fails silently and the base branch falls back incorrectly.
-2. Use PR title/body from `gh` for intent when available — don't re-derive from commits alone.
+2. Use PR metadata from `gh` when available — title/body for intent, file list for scope, CI and review decision for merge readiness. Compare any test plan in the PR body against what the diff actually covers.
 3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files.
 4. Do not re-read `AGENTS.md` — workspace rules already apply.
 5. Apply [severity and risk rubrics](reference.md#severity-rubric) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
 6. Use file paths in findings. Add line numbers only for blocking issues.
 
 ```bash
-BASE=$(
-  gh pr view --json baseRefName -q .baseRefName 2>/dev/null \
-  || git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' \
+PR_JSON="$(gh pr view --json baseRefName,title,body,url,headRefName,additions,deletions,changedFiles,files,statusCheckRollup,reviewDecision,latestReviews,state,isDraft 2>/dev/null || true)"
+
+BASE="$(printf '%s' "$PR_JSON" | jq -r '.baseRefName // empty' 2>/dev/null)"
+BASE="${BASE:-$(
+  git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' \
   || { git rev-parse --verify origin/master >/dev/null 2>&1 && echo master; } \
   || { git rev-parse --verify origin/main >/dev/null 2>&1 && echo main; } \
   || echo master
-)
+)}"
 
 echo "branch: $(git rev-parse --abbrev-ref HEAD)"
-gh pr view --json title,body,url -q '"PR: \(.title)\n\(.body)\n\(.url)"' 2>/dev/null || true
+
+if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "null" ] && printf '%s' "$PR_JSON" | jq -e . >/dev/null 2>&1; then
+  printf '%s' "$PR_JSON" | jq -r '
+    "PR: \(.title)",
+    .url,
+    (if .body != "" then "\n\(.body)\n" else "" end),
+    "base: \(.baseRefName) <- head: \(.headRefName) (\(.state)\(if .isDraft then ", draft" else "" end))",
+    "stats: \(.changedFiles) files (+\(.additions)/-\(.deletions))",
+    "",
+    "files:",
+    (.files[]? | "  \(.path) (+\(.additions)/-\(.deletions))"),
+    "",
+    "ci:",
+    (
+      [.statusCheckRollup[]? |
+        if .__typename == "CheckRun" then
+          (if .status != "COMPLETED" then "\(.name): \(.status)"
+           elif (.conclusion == "SUCCESS" or .conclusion == "SKIPPED" or .conclusion == "NEUTRAL") then empty
+           else "\(.name): \(.conclusion)" end)
+        elif .__typename == "StatusContext" then
+          (if (.state == "SUCCESS" or .state == "EXPECTED") then empty else "\(.context): \(.state)" end)
+        else empty end
+      ] | if length == 0 then "  all passing" else .[] | "  \(.)" end
+    ),
+    "",
+    "review decision: \(.reviewDecision // "none")",
+    (.latestReviews[]? | select(.state != "APPROVED" and .state != "DISMISSED") | "  \(.author.login): \(.state)\(if .body != "" then " — " + (.body | gsub("\n"; " ") | .[0:120]) else "" end)")
+  '
+else
+  echo "no open PR for this branch"
+fi
 
 git rev-parse --verify "origin/${BASE}" >/dev/null 2>&1 \
   || { echo "error: origin/${BASE} not found — fetch or check base branch"; exit 1; }
@@ -57,6 +89,13 @@ git log --oneline "origin/${BASE}..HEAD"
 git diff --stat "origin/${BASE}...HEAD"
 git diff "origin/${BASE}...HEAD"
 ```
+
+**PR context from `gh`**: When present, factor into the review:
+
+- **Failing or pending CI** → note in Summary; treat failures as merge blockers unless clearly unrelated/flaky (say why).
+- **`CHANGES_REQUESTED` or open review comments** → note in Summary as "Needs discussion" or incorporate into findings if still valid against the current diff.
+- **Test plan in PR body** → compare checkboxes/steps to test files and behaviors in the diff; feed gaps into [Test plan gaps](#output-format).
+- **No open PR** → branch-only review; omit CI/review rows from Summary.
 
 **Base branch**: Use the open PR's `baseRefName` when `gh` succeeds. Otherwise detect from `origin/HEAD`, then `origin/master` or `origin/main`. If the user names a base branch, substitute it for `BASE`.
 
@@ -141,6 +180,8 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 | ------------------- | ----------------------------------------------------------------------- |
 | **Commits**         | N                                                                       |
 | **Files changed**   | N (+/− lines)                                                           |
+| **CI**              | All passing / N failing — [check names; omit if no open PR]             |
+| **PR reviews**      | Approved / Changes requested / Review required — [omit if no open PR]   |
 | **Risk**            | Low / Medium / High — [one-line reason; see rubric](reference.md#risk-rubric) |
 | **Merge readiness** | Ready / Needs changes / Needs discussion — [see rubric](reference.md#merge-readiness) |
 | **Review depth**    | Fast / Adaptive (escalated) / Thorough — [one-line reason if escalated] |
