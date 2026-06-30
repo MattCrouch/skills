@@ -1,6 +1,7 @@
 ---
 name: review-pr
 description: Reviews the current branch like a PR — intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.
+disable-model-invocation: true
 ---
 
 # Review PR
@@ -101,6 +102,10 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 
 [How the change is implemented: key files, patterns, data flow, API/GraphQL changes, feature flags, etc. Note meaningful trade-offs if visible in the code.]
 
+## What's working well
+
+[1–3 bullets on genuine strengths — clear structure, good tests, sensible abstractions, focused scope. Omit section if nothing notable; do not pad with praise.]
+
 ## Review findings
 
 ### Must address before merge
@@ -145,5 +150,5 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 ## Rules
 
 - **Be specific**: Every finding needs a file reference and a concrete fix or question.
-- **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative.
+- **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative. "What's working well" is optional and separate from both.
 - **Skip nitpicks** unless they repeat a pattern or violate project conventions.
