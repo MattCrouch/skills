@@ -14,5 +14,11 @@ Personal agent skills shared across machines and projects.
 ## Cursor
 
 ```bash
-cp -r skills/skills/engineering/<skill-name> .cursor/skills/
+cp -r skills/engineering/<skill-name> .cursor/skills/
 ```
+
+## Skills
+
+### Engineering
+
+_(none yet)_

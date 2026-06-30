@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Auto-runs scripts/generate_marketplace.py before every commit, and stages
+# any files it changes so marketplace.json and the READMEs can never drift
+# from the SKILL.md frontmatter.
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+python3 "$REPO_ROOT/scripts/generate_marketplace.py"
+
+git -C "$REPO_ROOT" add \
+  ".claude-plugin/marketplace.json" \
+  "README.md" \
+  "skills/engineering/README.md"
