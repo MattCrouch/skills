@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Reviews the current branch like a PR — intent, approach, and senior dev feedback. Use when reviewing PRs or branches, summarizing changes, or seeking feedback before opening or merging.
+description: Reviews the current branch like a PR — intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.
 ---
 
 # Review PR
@@ -9,9 +9,23 @@ Answer these questions, then render the answer using the output format below:
 
 > Walk me through this PR. What's it trying to accomplish, and what's the approach?
 >
-> What things would you pull out in a code review as a senior developer? Any improvements you would suggest?
+> What would you flag before merge? Any improvements worth suggesting?
 
 Review-only — do not change code unless the user asks. Do not delegate to a subagent unless the user explicitly asks for Bugbot or security review.
+
+## Review target
+
+Default: review the **current branch** against its merge base. If the user names a specific PR or branch, resolve and check it out first — then run the fast path.
+
+Examples: `github.com/.../pull/123`, `review PR #456`, `review feature/foo`.
+
+1. Resolve the PR link, PR number, or branch name to the PR head branch or named branch (`gh pr checkout`, `gh pr view --json headRefName`, etc.).
+2. If that branch is already checked out, continue.
+3. If a different branch is checked out, switch to the target branch.
+4. If Git refuses (local changes would be overwritten, conflicts, or other blockers), explain the blocker and ask whether to stash. Stash only after the user confirms, then retry the switch.
+5. Run the gather script only after the correct branch is checked out locally.
+
+If the user names a **base branch**, substitute it for `BASE` in the gather script. If they ask to review **uncommitted or staged changes only**, use `git diff` or `git diff --cached` instead of the branch diff — mention scope in the review header.
 
 ## Fast path (always start here)
 
@@ -21,7 +35,7 @@ Unless the user says **thorough review**, always begin with the fast path — th
 2. Use PR title/body from `gh` for intent when available — don't re-derive from commits alone.
 3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files.
 4. Do not re-read `AGENTS.md` — workspace rules already apply.
-5. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
+5. Apply [severity and risk rubrics](reference.md#severity-rubric) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
 6. Use file paths in findings. Add line numbers only for blocking issues.
 
 ```bash
@@ -76,7 +90,7 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 - Read every changed file in full, not just diff hunks (or only the affected high-risk files when escalating adaptively)
 - Include line numbers on all findings
 - Include the Test plan gaps section
-- Apply the full checklist in [reference.md](reference.md)
+- Apply the thorough checklist and [project conventions](reference.md#project-conventions) in [reference.md](reference.md)
 
 ## Output format
 
@@ -93,7 +107,7 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 
 [How the change is implemented: key files, patterns, data flow, API/GraphQL changes, feature flags, etc. Note meaningful trade-offs if visible in the code.]
 
-## Senior developer review
+## Review findings
 
 ### Must address before merge
 
@@ -127,15 +141,15 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 | ------------------- | ----------------------------------------------------------------------- |
 | **Commits**         | N                                                                       |
 | **Files changed**   | N (+/− lines)                                                           |
-| **Risk**            | Low / Medium / High — [one-line reason]                                 |
-| **Merge readiness** | Ready / Needs changes / Needs discussion                                |
+| **Risk**            | Low / Medium / High — [one-line reason; see rubric](reference.md#risk-rubric) |
+| **Merge readiness** | Ready / Needs changes / Needs discussion — [see rubric](reference.md#merge-readiness) |
 | **Review depth**    | Fast / Adaptive (escalated) / Thorough — [one-line reason if escalated] |
 ```
 
 ## Rules
 
 - **Be specific**: Every finding needs a file reference and a concrete fix or question.
-- **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Senior developer review" is evaluative.
+- **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative.
 - **Skip nitpicks** unless they repeat a pattern or violate project conventions.
 
 ## Related skills
