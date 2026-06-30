@@ -11,7 +11,7 @@ Answer these questions, then render the answer using the output format below:
 >
 > What would you flag before merge? Any improvements worth suggesting?
 
-Review-only — do not change code unless the user asks. Do not delegate to a subagent unless the user explicitly asks for Bugbot or security review.
+Review-only — do not change code unless the user asks.
 
 ## Review target
 
@@ -147,9 +147,3 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 - **Be specific**: Every finding needs a file reference and a concrete fix or question.
 - **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative.
 - **Skip nitpicks** unless they repeat a pattern or violate project conventions.
-
-## Related skills
-
-- Bug-focused review: `review-bugbot`
-- Security-focused review: `review-security`
-- Getting a PR merge-ready: `babysit`
