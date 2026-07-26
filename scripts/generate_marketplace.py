@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Scans skills/<bucket>/<skill-name>/SKILL.md for every promoted bucket
-(engineering) and regenerates:
+Scans skills/<bucket>/<skill-name>/SKILL.md for every bucket and regenerates:
 
   - .claude-plugin/marketplace.json
-  - skills/<bucket>/README.md      (one per promoted bucket)
+  - skills/<bucket>/README.md      (one per bucket)
   - README.md                      (top-level "Skills" section)
 
-Skills in `personal/` are intentionally skipped, per AGENTS.md — they must not
-appear in marketplace.json or the top-level README.
+Every skill, in either bucket, is listed — per AGENTS.md.
 
 Run manually with:   python3 scripts/generate_marketplace.py
 Or let the pre-commit hook run it for you (see scripts/install_hooks.sh).
@@ -20,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
-PROMOTED_BUCKETS = ["engineering"]
+PROMOTED_BUCKETS = ["engineering", "personal"]
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 TOP_README = ROOT / "README.md"
 
@@ -73,7 +71,7 @@ def write_marketplace_json(discovered: dict):
     MARKETPLACE_JSON.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
 
 
-BUCKET_TITLES = {"engineering": "Engineering"}
+BUCKET_TITLES = {"engineering": "Engineering", "personal": "Personal"}
 
 
 def write_bucket_readme(bucket: str, skills: list):
@@ -81,6 +79,7 @@ def write_bucket_readme(bucket: str, skills: list):
     lines = [f"# {BUCKET_TITLES.get(bucket, bucket.title())}\n"]
     bucket_blurb = {
         "engineering": "Skills I use daily for code work.",
+        "personal": "Skills tied to my own setup.",
     }
     lines.append(bucket_blurb.get(bucket, "") + "\n")
     lines.append("| Skill | Description |")
