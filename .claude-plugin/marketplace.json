@@ -1,6 +1,8 @@
 {
   "name": "skills",
-  "owner": "MattCrouch",
+  "owner": {
+    "name": "MattCrouch"
+  },
   "description": "Matt's personal Claude Code skills",
   "plugins": [
     {
