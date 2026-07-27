@@ -3,6 +3,7 @@
 Scans skills/<bucket>/<skill-name>/SKILL.md for every bucket and regenerates:
 
   - .claude-plugin/marketplace.json
+  - skills/<bucket>/<skill-name>/.claude-plugin/plugin.json  (one per skill)
   - skills/<bucket>/README.md      (one per bucket)
   - README.md                      (top-level "Skills" section)
 
@@ -15,6 +16,7 @@ Or let the pre-commit hook run it for you (see scripts/install_hooks.sh).
 import json
 import re
 from pathlib import Path
+from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
@@ -67,8 +69,23 @@ def write_marketplace_json(discovered: dict):
             )
 
     existing = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
+    owner_name = existing.get("owner", {}).get("name")
     existing["plugins"] = plugins
     MARKETPLACE_JSON.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+    return owner_name
+
+
+def write_plugin_json(bucket: str, skill: dict, owner_name: Optional[str]):
+    skill_dir = SKILLS_DIR / bucket / skill["dir_name"]
+    plugin_dir = skill_dir / ".claude-plugin"
+    plugin_dir.mkdir(exist_ok=True)
+    manifest = {
+        "name": skill["name"],
+        "description": skill["description"],
+    }
+    if owner_name:
+        manifest["author"] = {"name": owner_name}
+    (plugin_dir / "plugin.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 BUCKET_TITLES = {"engineering": "Engineering", "personal": "Personal"}
@@ -119,9 +136,11 @@ def write_top_readme(discovered: dict):
 
 def main():
     discovered = discover_skills()
-    write_marketplace_json(discovered)
+    owner_name = write_marketplace_json(discovered)
     for bucket, skills in discovered.items():
         write_bucket_readme(bucket, skills)
+        for skill in skills:
+            write_plugin_json(bucket, skill, owner_name)
     write_top_readme(discovered)
 
     total = sum(len(v) for v in discovered.values())
