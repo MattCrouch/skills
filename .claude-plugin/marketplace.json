@@ -6,14 +6,9 @@
   "description": "Matt's personal Claude Code skills",
   "plugins": [
     {
-      "name": "review-pr",
-      "description": "Reviews the current branch like a PR \u2014 intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.",
-      "source": "./skills/engineering/review-pr"
-    },
-    {
-      "name": "my-voice",
-      "description": "Write in Matt's voice \u2014 conversational, self-deprecating, British, tangent-prone. Use when drafting or editing blog posts, personal writing, or anything that should sound like Matt wrote it himself.",
-      "source": "./skills/personal/my-voice"
+      "name": "matt-skills",
+      "description": "Matt's personal Claude Code skills",
+      "source": "./"
     }
   ]
 }

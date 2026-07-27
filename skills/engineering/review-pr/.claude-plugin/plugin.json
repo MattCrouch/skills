@@ -1,7 +1,0 @@
-{
-  "name": "review-pr",
-  "description": "Reviews the current branch like a PR \u2014 intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.",
-  "author": {
-    "name": "MattCrouch"
-  }
-}
