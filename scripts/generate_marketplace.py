@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
-PROMOTED_BUCKETS = ["engineering", "personal"]
+PROMOTED_BUCKETS = ["engineering"]
 PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 TOP_README = ROOT / "README.md"

@@ -12,5 +12,4 @@ python3 "$REPO_ROOT/scripts/generate_marketplace.py"
 git -C "$REPO_ROOT" add \
   ".claude-plugin/marketplace.json" \
   "README.md" \
-  "skills/engineering/README.md" \
-  "skills/personal/README.md"
+  "skills/engineering/README.md"
