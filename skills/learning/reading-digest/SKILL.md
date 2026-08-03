@@ -11,12 +11,12 @@ A general-purpose skill for processing shared material: summarize it, distill it
 
 Triggered whenever a link, article, or document is shared.
 
-1. Read the full content carefully — use whatever fetch/read tooling is available. Don't summarize from a snippet, title, or preview alone. If the content can't be fully retrieved (paywall, login wall, truncated fetch), say so rather than summarizing from what little came through.
-2. Give a **concise summary** of what the piece actually argues or covers — its structure and central claim, not just its topic.
-3. Give a **few short takeaway points** — bullets, not paragraphs. Aim for the most generalizable or load-bearing points, not a recap of every section.
-4. Don't project the user's own interests, prior frameworks, or preferred angle onto the summary unless they've stated one — summarize the source on its own terms first.
-5. Close by inviting the user to state their own understanding of the piece — this is what sets up [checking the user's understanding](#checking-the-users-understanding) as a natural follow-up rather than something they have to think to initiate.
-6. Then apply [cross-referencing](#cross-referencing-earlier-material) before finishing.
+- Read the full content carefully — use whatever fetch/read tooling is available. Don't summarize from a snippet, title, or preview alone. If the content can't be fully retrieved (paywall, login wall, truncated fetch), say so rather than summarizing from what little came through.
+- Give a **concise summary** of what the piece actually argues or covers — its structure and central claim, not just its topic.
+- Give a **few short takeaway points** — bullets, not paragraphs. Aim for the most generalizable or load-bearing points, not a recap of every section.
+- Don't project the user's own interests, prior frameworks, or preferred angle onto the summary unless they've stated one — summarize the source on its own terms first.
+- Close by inviting the user to state their own understanding of the piece — this is what sets up [checking the user's understanding](#checking-the-users-understanding) as a natural follow-up rather than something they have to think to initiate.
+- Then apply [cross-referencing](#cross-referencing-earlier-material) before finishing.
 
 Keep it tight — this is a triage/digest step. Deeper discussion happens in follow-up, not the first response.
 
@@ -34,10 +34,10 @@ Happens as a follow-up, sometimes in a later message or session, after material 
 
 Do this automatically, without being asked, whenever new material or a new digest comes in.
 
-1. Check for related earlier discussions using whatever memory or search-over-past-context capability is available. If none is available, skip this silently rather than guessing or fabricating a connection.
-2. If a genuine connection exists, call it out explicitly — name the earlier piece and state the specific link (shared claim, tension, extension, contradiction).
-3. If nothing relevant turns up, don't force a connection — treat the piece as standalone. A manufactured link is worse than no link.
-4. The user retains the right to reject a proposed connection — if they push back, drop it rather than arguing for it.
+- Check for related earlier discussions using whatever memory or search-over-past-context capability is available. If none is available, skip this silently rather than guessing or fabricating a connection.
+- If a genuine connection exists, call it out explicitly — name the earlier piece and state the specific link (shared claim, tension, extension, contradiction).
+- If nothing relevant turns up, don't force a connection — treat the piece as standalone. A manufactured link is worse than no link.
+- The user retains the right to reject a proposed connection — if they push back, drop it rather than arguing for it.
 
 ## Tone and style
 
