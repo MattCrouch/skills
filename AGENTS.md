@@ -3,6 +3,7 @@
 Skills are organised into bucket folders under `skills/`:
 
 - `engineering/` — Daily code work
+- `learning/` — Reading and learning
 
 Personal (non-engineering) skills live in the separate [personal-skills](https://github.com/MattCrouch/personal-skills) repo.
 

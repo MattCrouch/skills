@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
-PROMOTED_BUCKETS = ["engineering"]
+PROMOTED_BUCKETS = ["engineering", "learning"]
 PLUGIN_JSON = ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_JSON = ROOT / ".claude-plugin" / "marketplace.json"
 TOP_README = ROOT / "README.md"
@@ -77,7 +77,7 @@ def write_marketplace_json(plugin_name: str, plugin_description: str):
     MARKETPLACE_JSON.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
 
 
-BUCKET_TITLES = {"engineering": "Engineering", "personal": "Personal"}
+BUCKET_TITLES = {"engineering": "Engineering", "learning": "Learning"}
 
 
 def write_bucket_readme(bucket: str, skills: list):
@@ -85,7 +85,7 @@ def write_bucket_readme(bucket: str, skills: list):
     lines = [f"# {BUCKET_TITLES.get(bucket, bucket.title())}\n"]
     bucket_blurb = {
         "engineering": "Skills I use daily for code work.",
-        "personal": "Skills tied to my own setup.",
+        "learning": "Skills for reading and learning.",
     }
     lines.append(bucket_blurb.get(bucket, "") + "\n")
     lines.append("| Skill | Description |")

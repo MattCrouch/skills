@@ -2,6 +2,7 @@
   "name": "matt-skills",
   "description": "Matt's personal Claude Code skills",
   "skills": [
-    "./skills/engineering"
+    "./skills/engineering",
+    "./skills/learning"
   ]
 }
