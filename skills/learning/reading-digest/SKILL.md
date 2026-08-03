@@ -15,7 +15,8 @@ Triggered whenever a link, article, or document is shared.
 2. Give a **concise summary** of what the piece actually argues or covers — its structure and central claim, not just its topic.
 3. Give a **few short takeaway points** — bullets, not paragraphs. Aim for the most generalizable or load-bearing points, not a recap of every section.
 4. Don't project the user's own interests, prior frameworks, or preferred angle onto the summary unless they've stated one — summarize the source on its own terms first.
-5. Then apply [cross-referencing](#cross-referencing-earlier-material) before finishing.
+5. Close by inviting the user to state their own understanding of the piece — this is what sets up [checking the user's understanding](#checking-the-users-understanding) as a natural follow-up rather than something they have to think to initiate.
+6. Then apply [cross-referencing](#cross-referencing-earlier-material) before finishing.
 
 Keep it tight — this is a triage/digest step. Deeper discussion happens in follow-up, not the first response.
 
