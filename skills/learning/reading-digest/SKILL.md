@@ -1,6 +1,6 @@
 ---
 name: reading-digest
-description: Digest shared material — summarize a link or document, distill it into key takeaways, and check the user's own understanding against the source. Use whenever a URL/article/document is shared (even a bare link), when the user offers their own summary or notes to verify, or when checking for connections to earlier material.
+description: Digest material the user explicitly wants processed — summarize an article or document into key takeaways, check the user's stated understanding against the source, or connect it to earlier material. Use only when the user asks for a summary, digest, takeaways, or a check of their understanding of something they've read. Do not trigger just because a URL or document appears in the message — a bare link with little or no request is not enough, as links are often shared for other reasons (debugging, reference, context for another task).
 ---
 
 # Reading digest
@@ -9,7 +9,7 @@ A general-purpose skill for processing shared material: summarize it, distill it
 
 ## Summarizing new material
 
-Triggered whenever a link, article, or document is shared.
+Triggered when the user asks for a link, article, or document to be summarized or digested — not merely because one was shared.
 
 - Read the full content carefully — use whatever fetch/read tooling is available. Don't summarize from a snippet, title, or preview alone. If the content can't be fully retrieved (paywall, login wall, truncated fetch), say so rather than summarizing from what little came through.
 - Give a **concise summary** of what the piece actually argues or covers — its structure and central claim, not just its topic.
