@@ -1,6 +1,6 @@
 # Reference
 
-Apply severity and risk rubrics on every review. Apply the thorough checklist when the user requests **thorough review** or [adaptive depth](SKILL.md#adaptive-depth) triggers.
+Apply severity and risk rubrics and the agent-written code checks on every review. Apply the thorough checklist when the user requests **thorough review** or [adaptive depth](SKILL.md#adaptive-depth) triggers.
 
 ## Severity rubric
 
@@ -27,6 +27,17 @@ Every finding needs a file reference and a concrete fix or question. Do not infl
 | **Ready**            | No Critical findings; approach matches intent; tests/CI look adequate for the risk level       |
 | **Needs changes**    | One or more Critical findings, or Medium/High risk with clear test or logic gaps               |
 | **Needs discussion** | Architectural trade-offs, ambiguous requirements, or conflicting approaches — not a simple fix |
+
+## Agent-written code checks
+
+Mistakes agents often make. Most show up in the diff without opening other files:
+
+- [ ] Tests weakened to pass — assertions loosened, cases deleted, or tests skipped (`.skip`, `xit`, `@skip`)
+- [ ] Lint or type suppressions added to get green, rather than fixing the cause
+- [ ] Debug logging, TODOs, or commented-out code left behind
+- [ ] Files, refactors, or renames beyond what the change needs
+- [ ] Calls to functions, props, or APIs not defined in the diff — check they exist before flagging
+- [ ] New helpers that duplicate a utility already in the codebase
 
 ## Thorough review checklist
 

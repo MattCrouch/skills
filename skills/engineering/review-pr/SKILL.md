@@ -12,7 +12,7 @@ Answer these questions, then render the answer using the output format below:
 >
 > What would you flag before merge? Any improvements worth suggesting?
 
-Review-only — do not change code unless the user asks.
+Review-only — do not change code unless the user asks. With no open PR, end by offering to apply the fixes (see [Pre-PR review](#pre-pr-review)).
 
 ## Review target
 
@@ -27,6 +27,12 @@ Examples: `github.com/.../pull/123`, `review PR #456`, `review feature/foo`.
 5. Run the gather script only after the correct branch is checked out locally.
 
 If the user names a **base branch**, run gather with `REVIEW_PR_BASE=<branch>`. If they ask to review **uncommitted or staged changes only**, use `git diff` or `git diff --cached` instead of the branch diff — mention scope in the review header.
+
+## Independent review
+
+If this conversation wrote or edited the changes under review, run the review through a subagent once gather has run. Give it only the gather output and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
+
+Either way, take intent from the PR body, commits, and diff, not from what was discussed. If the diff alone doesn't make the intent clear, that's a finding.
 
 ## Fast path (always start here)
 
@@ -43,7 +49,7 @@ Unless the user says **thorough review**, always begin with the fast path — th
 2. Use PR metadata from `gh` when available — title/body for intent, file list for scope, CI and review decision for merge readiness. Compare any test plan in the PR body against what the diff actually covers.
 3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files.
 4. Do not re-read `AGENTS.md` — workspace rules already apply.
-5. Apply [severity and risk rubrics](reference.md#severity-rubric) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
+5. Apply [severity and risk rubrics](reference.md#severity-rubric) and [agent-written code checks](reference.md#agent-written-code-checks) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
 6. Use file paths in findings. Add line numbers only for blocking issues.
 
 **PR context from `gh`**: When present, factor into the review:
@@ -51,7 +57,7 @@ Unless the user says **thorough review**, always begin with the fast path — th
 - **Failing or pending CI** → note in Summary; treat failures as merge blockers unless clearly unrelated/flaky (say why).
 - **`CHANGES_REQUESTED` or open review comments** → note in Summary as "Needs discussion" or incorporate into findings if still valid against the current diff.
 - **Test plan in PR body** → compare checkboxes/steps to test files and behaviors in the diff; feed gaps into [Test plan gaps](#output-format).
-- **No open PR** → branch-only review; omit CI/review rows from Summary.
+- **No open PR** → branch-only review; omit CI/review rows from Summary and apply [Pre-PR review](#pre-pr-review).
 
 **Base branch**: `gather.sh` uses the open PR's `baseRefName` when `gh` succeeds, otherwise detects from `origin/HEAD`, then `origin/master` or `origin/main`. Override with `REVIEW_PR_BASE`.
 
@@ -86,6 +92,16 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 - Include line numbers on all findings
 - Include the Test plan gaps section
 - Apply the thorough checklist and [project conventions](reference.md#project-conventions) in [reference.md](reference.md)
+
+## Pre-PR review
+
+When there's no open PR, the reader is the author getting ready to open one. Adjust the output format:
+
+- Title it `# Pre-PR Review: [branch name]`.
+- Number findings across all tables (1, 2, 3…) so the user can say "fix 2".
+- Replace the **Merge readiness** row with **Ready to open PR**: Ready / Fix first / Needs discussion, using the [merge readiness rubric](reference.md#merge-readiness).
+- After Summary, add a **Draft PR description**: a title, 2–4 sentences on what and why, and a test plan checklist. Base it on the diff and commits, as "What it's trying to accomplish" and "Approach" are. Describe the change as it stands, not as it will be once the findings are fixed.
+- End with a one-line offer to apply the fixes, by number.
 
 ## Output format
 
