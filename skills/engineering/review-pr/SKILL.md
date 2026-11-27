@@ -10,7 +10,9 @@ Reviews the current branch like a PR. The review itself runs in a subagent with 
 
 ## 1. Pick the target
 
-Default: the **current branch** against its merge base. If the user names a PR or branch (`github.com/.../pull/123`, `review PR #456`, `review feature/foo`):
+Default: the **current branch** against its merge base. In that case run no commands here: go straight to step 2, using the branch name if you already know it from context and "the current branch" if you don't.
+
+If the user names a PR or branch (`github.com/.../pull/123`, `review PR #456`, `review feature/foo`):
 
 1. Resolve it to the PR head branch or named branch (`gh pr checkout`, `gh pr view --json headRefName`, etc.).
 2. If that branch is already checked out, continue. Otherwise switch to it.
@@ -22,7 +24,7 @@ Don't run gather, read the diff, or read `review.md` yourself: the subagent does
 
 ## 2. Say what's happening
 
-Before launching the subagent, tell the user in one line what is being reviewed and that it runs separately, for example:
+In the same message that launches the subagent, tell the user in one line what is being reviewed and that it runs separately, for example:
 
 > Reviewing `feature/foo` against `main` in a separate context. This usually takes a minute or two.
 
