@@ -2,6 +2,7 @@
 name: review-pr
 description: Reviews the current branch like a PR — intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.
 disable-model-invocation: true
+context: fork
 ---
 
 # Review PR
@@ -23,14 +24,16 @@ Examples: `github.com/.../pull/123`, `review PR #456`, `review feature/foo`.
 1. Resolve the PR link, PR number, or branch name to the PR head branch or named branch (`gh pr checkout`, `gh pr view --json headRefName`, etc.).
 2. If that branch is already checked out, continue.
 3. If a different branch is checked out, switch to the target branch.
-4. If Git refuses (local changes would be overwritten, conflicts, or other blockers), explain the blocker and ask whether to stash. Stash only after the user confirms, then retry the switch.
+4. If Git refuses (local changes would be overwritten, conflicts, or other blockers), explain the blocker and ask whether to stash. Stash only after the user confirms, then retry the switch. If you can't ask the user from where you're running, stop and report the blocker instead.
 5. Run the gather script only after the correct branch is checked out locally.
 
 If the user names a **base branch**, run gather with `REVIEW_PR_BASE=<branch>`. If they ask to review **uncommitted or staged changes only**, use `git diff` or `git diff --cached` instead of the branch diff — mention scope in the review header.
 
 ## Independent review
 
-If this conversation wrote or edited the changes under review, run the review through a subagent. Don't run gather yourself first or paste its output into the prompt: the subagent runs gather itself. Give it only the repo path, the base branch if one was named, and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
+The `context: fork` frontmatter runs this skill in its own clean context where the tool supports it (Claude Code), so the review is already independent of the conversation and it stays small however long that conversation is. If you have no earlier conversation in your context, review inline and skip the next paragraph.
+
+Otherwise, if this conversation wrote or edited the changes under review, run the review through a subagent. Don't run gather yourself first or paste its output into the prompt: the subagent runs gather itself. Give it only the repo path, the base branch if one was named, and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
 
 Either way, take intent from the PR body, commits, and diff, not from what was discussed. If the diff alone doesn't make the intent clear, that's a finding.
 
