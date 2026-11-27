@@ -27,7 +27,7 @@ Unless the launcher asked for a **thorough review**, always begin with the fast 
 2. Use PR metadata from `gh` when available — title/body for intent (HTML comments and the CodeRabbit summary stripped, truncated past 7,000 characters), the diff stat for scope, CI and review decision for merge readiness. Compare any test plan in the PR body against what the diff actually covers.
 3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files. When you need several files or per-path diffs, request them all in one message rather than one after another.
 4. Do not re-read `AGENTS.md` — workspace rules already apply.
-5. Apply [severity and risk rubrics](reference.md#severity-rubric) and [agent-written code checks](reference.md#agent-written-code-checks) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
+5. Apply [severity and risk rubrics](reference.md#severity-rubric) and [agent-written code checks](reference.md#agent-written-code-checks) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves, all in one table. Omit empty sections.
 6. Use file paths in findings. Add line numbers only for blocking issues.
 
 **PR context from `gh`**: When present, factor into the review:
@@ -80,7 +80,7 @@ Apply when the launcher asked for a **thorough review**, or when [adaptive depth
 When there's no open PR, the reader is the author getting ready to open one. Adjust the output format:
 
 - Title it `# Pre-PR Review: [branch name]`.
-- Number findings across all sections (1, 2, 3…) so the user can say "fix 2". Keep the severity on each one.
+- The `#` column in the findings table lets the user say "fix 2". Keep the severity on each one.
 - Replace the **Merge readiness** row with **Ready to open PR**: Ready / Fix first / Needs discussion, using the [merge readiness rubric](reference.md#merge-readiness).
 - After Summary, add a **Draft PR description**: a title, 2–4 sentences on what and why, and a test plan checklist. Base it on the diff and commits, as "What it's trying to accomplish" and "Approach" are. Describe the change as it stands, not as it will be once the findings are fixed.
 - End with a one-line offer to apply the fixes, by number.
@@ -106,27 +106,13 @@ When there's no open PR, the reader is the author getting ready to open one. Adj
 
 ## Review findings
 
-### Must address before merge
+[All findings in one table, ordered by severity: 🔴 Critical first, then 🟡 Suggestion, then 🟢 Nice-to-have. Omit section if none.]
 
-[Blocking issues only. Omit section if none.]
-
-| Severity    | Location           | Finding                        |
-| ----------- | ------------------ | ------------------------------ |
-| 🔴 Critical | `path/to/file.tsx` | [Specific, actionable finding] |
-
-### Suggestions
-
-[Non-blocking improvements. Omit section if none.]
-
-| Severity      | Location           | Finding                        |
-| ------------- | ------------------ | ------------------------------ |
-| 🟡 Suggestion | `path/to/file.tsx` | [Specific, actionable finding] |
-
-### Improvements worth considering
-
-[Optional polish. Omit section if none.]
-
-- 🟢 Nice-to-have — `path/to/file.tsx` — [Improvement with brief rationale]
+| #   | Severity        | Location              | Finding                                 |
+| --- | --------------- | --------------------- | --------------------------------------- |
+| 1   | 🔴 Critical     | `path/to/file.tsx:42` | [Specific, actionable finding]          |
+| 2   | 🟡 Suggestion   | `path/to/file.tsx`    | [Specific, actionable finding]          |
+| 3   | 🟢 Nice-to-have | `path/to/file.tsx`    | [Improvement with brief rationale]      |
 
 ## Test plan gaps
 
@@ -147,7 +133,7 @@ When there's no open PR, the reader is the author getting ready to open one. Adj
 
 ## Rules
 
-- **Label every finding**: each one carries its severity (🔴 Critical, 🟡 Suggestion, 🟢 Nice-to-have) from the [severity rubric](reference.md#severity-rubric), in the tables shown above. Don't turn the tables into plain bullets or drop the Severity column.
+- **Label every finding**: each one carries its severity (🔴 Critical, 🟡 Suggestion, 🟢 Nice-to-have) from the [severity rubric](reference.md#severity-rubric), in the single findings table shown above, sorted most severe first. Don't split findings into separate tables, turn them into plain bullets, or drop the Severity column.
 - **Be specific**: Every finding needs a file reference and a concrete fix or question.
 - **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative. "What's working well" is optional and separate from both.
 - **Skip nitpicks** unless they repeat a pattern or violate project conventions.

@@ -41,4 +41,4 @@ If no subagent tool is available, read [review.md](review.md) and follow it inli
 
 ## 4. Show the review
 
-Show the subagent's review as-is rather than re-summarising it. Keep its tables, numbering, and severity labels (🔴 / 🟡 / 🟢); don't condense findings into plain bullets. Review-only: don't change code unless the user asks. If it is a pre-PR review, the user may reply by finding number ("fix 2"); apply those fixes here, re-reading files as needed.
+Show the subagent's review as-is rather than re-summarising it. Keep its single findings table, numbering, severity order, and severity labels (🔴 / 🟡 / 🟢); don't split it up or condense findings into plain bullets. Review-only: don't change code unless the user asks. If it is a pre-PR review, the user may reply by finding number ("fix 2"); apply those fixes here, re-reading files as needed.
