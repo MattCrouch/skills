@@ -76,7 +76,6 @@ Unless the user says **thorough review**, always begin with the fast path — th
 
 After the fast-path gather and initial diff read, escalate to thorough-mode steps when **any** of these apply:
 
-- More than ~15 files or ~500 lines changed
 - Touches auth, payments, data mutations, or shared infrastructure
 - Production logic changed without corresponding test changes
 - A potential blocking issue needs surrounding context to validate
@@ -87,13 +86,16 @@ When escalating:
 2. Apply the thorough-mode steps below for the affected files only — not necessarily the whole PR.
 3. Include the Test plan gaps section in the output.
 
+Size alone is not a trigger: a large PR stays on the fast path and follows the **Large PRs** guidance.
+
 If none of the triggers apply, stay on the fast path.
 
 ## Thorough mode
 
 Apply when the user says **thorough review**, or when [adaptive depth](#adaptive-depth) triggers:
 
-- Read every changed file in full, not just diff hunks (or only the affected high-risk files when escalating adaptively)
+- On an explicit **thorough review**, read every changed file in full, not just diff hunks
+- When escalating adaptively, get context for the affected files only, with a wider diff (`git diff -U30 "origin/${BASE}...HEAD" -- <file>`) or a ranged read around the hunk, not the whole file
 - Include line numbers on all findings
 - Include the Test plan gaps section
 - Apply the thorough checklist and [project conventions](reference.md#project-conventions) in [reference.md](reference.md)
