@@ -71,7 +71,9 @@ MAX_DIFF_LINES="${REVIEW_PR_MAX_DIFF_LINES:-1500}"
 git log --oneline "origin/${BASE}..HEAD"
 git diff --stat "origin/${BASE}...HEAD"
 
-DIFF_LINES="$(git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}" | wc -l | tr -d ' ')"
+# Run the diff once and reuse it for both the size check and the output.
+DIFF="$(git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}")"
+DIFF_LINES="$(printf '%s' "$DIFF" | grep -c '' || true)"
 if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]; then
   echo ""
   echo "diff omitted: ${DIFF_LINES} lines (cap ${MAX_DIFF_LINES})."
@@ -79,5 +81,5 @@ if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]; then
 else
   echo ""
   echo "diff (lockfiles, snapshots, minified and map files excluded):"
-  git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}"
+  printf '%s\n' "$DIFF"
 fi
