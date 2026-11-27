@@ -3,7 +3,7 @@
 # Run from the repository under review.
 # Optional: REVIEW_PR_BASE=main ./scripts/gather.sh
 
-PR_JSON="$(gh pr view --json baseRefName,title,body,url,headRefName,additions,deletions,changedFiles,files,statusCheckRollup,reviewDecision,latestReviews,state,isDraft 2>/dev/null || true)"
+PR_JSON="$(gh pr view --json baseRefName,title,body,url,headRefName,additions,deletions,changedFiles,statusCheckRollup,reviewDecision,latestReviews,state,isDraft 2>/dev/null || true)"
 
 if [ -n "${REVIEW_PR_BASE:-}" ]; then
   BASE="$REVIEW_PR_BASE"
@@ -23,12 +23,9 @@ if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "null" ] && printf '%s' "$PR_JSON" | jq 
   printf '%s' "$PR_JSON" | jq -r '
     "PR: \(.title)",
     .url,
-    (if .body != "" then "\n\(.body)\n" else "" end),
+    (if .body != "" then "\n\(.body[0:2000])\(if (.body | length) > 2000 then "\n[body truncated at 2000 characters]" else "" end)\n" else "" end),
     "base: \(.baseRefName) <- head: \(.headRefName) (\(.state)\(if .isDraft then ", draft" else "" end))",
     "stats: \(.changedFiles) files (+\(.additions)/-\(.deletions))",
-    "",
-    "files:",
-    (.files[]? | "  \(.path) (+\(.additions)/-\(.deletions))"),
     "",
     "ci:",
     (
