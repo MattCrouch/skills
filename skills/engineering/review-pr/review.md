@@ -80,7 +80,7 @@ Apply when the launcher asked for a **thorough review**, or when [adaptive depth
 When there's no open PR, the reader is the author getting ready to open one. Adjust the output format:
 
 - Title it `# Pre-PR Review: [branch name]`.
-- Number findings across all tables (1, 2, 3…) so the user can say "fix 2".
+- Number findings across all sections (1, 2, 3…) so the user can say "fix 2". Keep the severity on each one.
 - Replace the **Merge readiness** row with **Ready to open PR**: Ready / Fix first / Needs discussion, using the [merge readiness rubric](reference.md#merge-readiness).
 - After Summary, add a **Draft PR description**: a title, 2–4 sentences on what and why, and a test plan checklist. Base it on the diff and commits, as "What it's trying to accomplish" and "Approach" are. Describe the change as it stands, not as it will be once the findings are fixed.
 - End with a one-line offer to apply the fixes, by number.
@@ -126,7 +126,7 @@ When there's no open PR, the reader is the author getting ready to open one. Adj
 
 [Optional polish. Omit section if none.]
 
-- [Improvement with brief rationale]
+- 🟢 Nice-to-have — `path/to/file.tsx` — [Improvement with brief rationale]
 
 ## Test plan gaps
 
@@ -147,6 +147,7 @@ When there's no open PR, the reader is the author getting ready to open one. Adj
 
 ## Rules
 
+- **Label every finding**: each one carries its severity (🔴 Critical, 🟡 Suggestion, 🟢 Nice-to-have) from the [severity rubric](reference.md#severity-rubric), in the tables shown above. Don't turn the tables into plain bullets or drop the Severity column.
 - **Be specific**: Every finding needs a file reference and a concrete fix or question.
 - **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative. "What's working well" is optional and separate from both.
 - **Skip nitpicks** unless they repeat a pattern or violate project conventions.
