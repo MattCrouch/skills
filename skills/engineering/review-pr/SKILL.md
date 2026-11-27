@@ -2,176 +2,41 @@
 name: review-pr
 description: Reviews the current branch like a PR — intent, approach, and actionable feedback. Use when reviewing PRs or branches, a PR URL or number, summarizing changes, or seeking feedback before opening or merging.
 disable-model-invocation: true
-context: fork
 ---
 
 # Review PR
 
-Answer these questions, then render the answer using the output format below:
+Reviews the current branch like a PR. The review itself runs in a subagent with its own context, so it stays small however long this conversation is and isn't shaped by what was discussed here. Your job is to set it up, tell the user it has started, and show the result.
 
-> Walk me through this PR. What's it trying to accomplish, and what's the approach?
->
-> What would you flag before merge? Any improvements worth suggesting?
+## 1. Pick the target
 
-Review-only — do not change code unless the user asks. With no open PR, end by offering to apply the fixes (see [Pre-PR review](#pre-pr-review)).
+Default: the **current branch** against its merge base. If the user names a PR or branch (`github.com/.../pull/123`, `review PR #456`, `review feature/foo`):
 
-## Review target
+1. Resolve it to the PR head branch or named branch (`gh pr checkout`, `gh pr view --json headRefName`, etc.).
+2. If that branch is already checked out, continue. Otherwise switch to it.
+3. If Git refuses (local changes would be overwritten, conflicts, or other blockers), explain the blocker and ask whether to stash. Stash only after the user confirms, then retry the switch.
 
-Default: review the **current branch** against its merge base. If the user names a specific PR or branch, resolve and check it out first — then run the fast path.
+Note any **base branch** the user named, whether they asked for **uncommitted or staged changes only**, and whether they asked for a **thorough review**.
 
-Examples: `github.com/.../pull/123`, `review PR #456`, `review feature/foo`.
+Don't run gather, read the diff, or read `review.md` yourself: the subagent does that.
 
-1. Resolve the PR link, PR number, or branch name to the PR head branch or named branch (`gh pr checkout`, `gh pr view --json headRefName`, etc.).
-2. If that branch is already checked out, continue.
-3. If a different branch is checked out, switch to the target branch.
-4. If Git refuses (local changes would be overwritten, conflicts, or other blockers), explain the blocker and ask whether to stash. Stash only after the user confirms, then retry the switch. If you can't ask the user from where you're running, stop and report the blocker instead.
-5. Run the gather script only after the correct branch is checked out locally.
+## 2. Say what's happening
 
-If the user names a **base branch**, run gather with `REVIEW_PR_BASE=<branch>`. If they ask to review **uncommitted or staged changes only**, use `git diff` or `git diff --cached` instead of the branch diff — mention scope in the review header.
+Before launching the subagent, tell the user in one line what is being reviewed and that it runs separately, for example:
 
-## Independent review
+> Reviewing `feature/foo` against `main` in a separate context. This usually takes a minute or two.
 
-The `context: fork` frontmatter runs this skill in its own clean context where the tool supports it (Claude Code), so the review is already independent of the conversation and it stays small however long that conversation is. If you have no earlier conversation in your context, review inline and skip the next paragraph.
+## 3. Launch the review
 
-Otherwise, if this conversation wrote or edited the changes under review, run the review through a subagent. Don't run gather yourself first or paste its output into the prompt: the subagent runs gather itself. Give it only the repo path, the base branch if one was named, and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
+Start one subagent (general-purpose) with a short description like `Review feature/foo`. Give it only:
 
-Either way, take intent from the PR body, commits, and diff, not from what was discussed. If the diff alone doesn't make the intent clear, that's a finding.
+- the repo path, the branch, and any base branch, scope, or thorough flag from step 1
+- the path to this skill's [review.md](review.md), with the instruction to follow it and return the finished review as its final message
 
-## Fast path (always start here)
+Don't pass the conversation or your own summary of the changes.
 
-Unless the user says **thorough review**, always begin with the fast path — then apply [adaptive depth](#adaptive-depth) if warranted.
+If no subagent tool is available, read [review.md](review.md) and follow it inline.
 
-1. Run [scripts/gather.sh](scripts/gather.sh) from the **repo under review** (one round-trip). Resolve the path from this skill's directory — e.g. replace `/SKILL.md` with `/scripts/gather.sh` in the skill's `fullPath`. Execute the script; do not copy or rewrite it. **Use shell permissions that allow GitHub API access** (`required_permissions: ["all"]` or `["full_network"]`) — without this, `gh` fails silently and the base branch falls back incorrectly.
+## 4. Show the review
 
-   ```bash
-   bash "<skill-dir>/scripts/gather.sh"
-   ```
-
-   If the user names a **base branch**, pass `REVIEW_PR_BASE=<branch>`.
-
-2. Use PR metadata from `gh` when available — title/body for intent (HTML comments and the CodeRabbit summary stripped, truncated past 7,000 characters), the diff stat for scope, CI and review decision for merge readiness. Compare any test plan in the PR body against what the diff actually covers.
-3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files.
-4. Do not re-read `AGENTS.md` — workspace rules already apply.
-5. Apply [severity and risk rubrics](reference.md#severity-rubric) and [agent-written code checks](reference.md#agent-written-code-checks) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
-6. Use file paths in findings. Add line numbers only for blocking issues.
-
-**PR context from `gh`**: When present, factor into the review:
-
-- **Failing or pending CI** → note in Summary; treat failures as merge blockers unless clearly unrelated/flaky (say why).
-- **`CHANGES_REQUESTED` or open review comments** → note in Summary as "Needs discussion" or incorporate into findings if still valid against the current diff.
-- **Test plan in PR body** → compare checkboxes/steps to test files and behaviors in the diff; feed gaps into [Test plan gaps](#output-format).
-- **No open PR** → branch-only review; omit CI/review rows from Summary and apply [Pre-PR review](#pre-pr-review).
-
-**Base branch**: `gather.sh` uses the open PR's `baseRefName` when `gh` succeeds, otherwise detects from `origin/HEAD`, then `origin/master` or `origin/main`. Override with `REVIEW_PR_BASE`.
-
-**Uncommitted changes**: Mention separately if `git status --short` shows any (run only when needed).
-
-**Empty diff**: Say so in one sentence and stop.
-
-**Large PRs**: Summarize by area from the stat, then read only the highest-risk hunks (logic, API, auth, data mutations). Skip re-reading large test-only diffs unless production code changed. When gather omits the diff for size (over 1,500 lines by default, `REVIEW_PR_MAX_DIFF_LINES` to change), diff per path: `git diff "origin/${BASE}...HEAD" -- packages/foo/`.
-
-**Excluded files**: gather leaves lockfiles, snapshots, and minified/map files out of the diff; they still appear in the stat. Diff one by path only if the change looks suspicious, such as a lockfile changing with no manifest change.
-
-## Adaptive depth
-
-After the fast-path gather and initial diff read, escalate to thorough-mode steps when **any** of these apply:
-
-- Touches auth, payments, data mutations, or shared infrastructure
-- Production logic changed without corresponding test changes
-- A potential blocking issue needs surrounding context to validate
-
-When escalating:
-
-1. Tell the user you are going deeper and why (one sentence).
-2. Apply the thorough-mode steps below for the affected files only — not necessarily the whole PR.
-3. Include the Test plan gaps section in the output.
-
-Size alone is not a trigger: a large PR stays on the fast path and follows the **Large PRs** guidance.
-
-If none of the triggers apply, stay on the fast path.
-
-## Thorough mode
-
-Apply when the user says **thorough review**, or when [adaptive depth](#adaptive-depth) triggers:
-
-- On an explicit **thorough review**, read every changed file in full, not just diff hunks
-- When escalating adaptively, get context for the affected files only, with a wider diff (`git diff -U30 "origin/${BASE}...HEAD" -- <file>`) or a ranged read around the hunk, not the whole file
-- Include line numbers on all findings
-- Include the Test plan gaps section
-- Read [thorough.md](thorough.md) and apply its checklist and project conventions
-
-## Pre-PR review
-
-When there's no open PR, the reader is the author getting ready to open one. Adjust the output format:
-
-- Title it `# Pre-PR Review: [branch name]`.
-- Number findings across all tables (1, 2, 3…) so the user can say "fix 2".
-- Replace the **Merge readiness** row with **Ready to open PR**: Ready / Fix first / Needs discussion, using the [merge readiness rubric](reference.md#merge-readiness).
-- After Summary, add a **Draft PR description**: a title, 2–4 sentences on what and why, and a test plan checklist. Base it on the diff and commits, as "What it's trying to accomplish" and "Approach" are. Describe the change as it stands, not as it will be once the findings are fixed.
-- End with a one-line offer to apply the fixes, by number.
-
-## Output format
-
-```markdown
-# PR Review: [branch name]
-
-[One sentence: what this PR does and whether the approach looks sound overall.]
-
-## What it's trying to accomplish
-
-[2–4 sentences. State the problem, the intended outcome, and who/what is affected. Ground this in the PR description, commit messages, and diff — not speculation.]
-
-## Approach
-
-[How the change is implemented: key files, patterns, data flow, API/GraphQL changes, feature flags, etc. Note meaningful trade-offs if visible in the code.]
-
-## What's working well
-
-[1–3 bullets on genuine strengths — clear structure, good tests, sensible abstractions, focused scope. Omit section if nothing notable; do not pad with praise.]
-
-## Review findings
-
-### Must address before merge
-
-[Blocking issues only. Omit section if none.]
-
-| Severity    | Location           | Finding                        |
-| ----------- | ------------------ | ------------------------------ |
-| 🔴 Critical | `path/to/file.tsx` | [Specific, actionable finding] |
-
-### Suggestions
-
-[Non-blocking improvements. Omit section if none.]
-
-| Severity      | Location           | Finding                        |
-| ------------- | ------------------ | ------------------------------ |
-| 🟡 Suggestion | `path/to/file.tsx` | [Specific, actionable finding] |
-
-### Improvements worth considering
-
-[Optional polish. Omit section if none.]
-
-- [Improvement with brief rationale]
-
-## Test plan gaps
-
-[Include after adaptive escalation, in thorough mode, when risk is Medium/High, or when changed behavior clearly lacks test coverage.]
-
-## Summary
-
-|                     |                                                                         |
-| ------------------- | ----------------------------------------------------------------------- |
-| **Commits**         | N                                                                       |
-| **Files changed**   | N (+/− lines)                                                           |
-| **CI**              | All passing / N failing — [check names; omit if no open PR]             |
-| **PR reviews**      | Approved / Changes requested / Review required — [omit if no open PR]   |
-| **Risk**            | Low / Medium / High — [one-line reason; see rubric](reference.md#risk-rubric) |
-| **Merge readiness** | Ready / Needs changes / Needs discussion — [see rubric](reference.md#merge-readiness) |
-| **Review depth**    | Fast / Adaptive (escalated) / Thorough — [one-line reason if escalated] |
-```
-
-## Rules
-
-- **Be specific**: Every finding needs a file reference and a concrete fix or question.
-- **Separate intent from critique**: "What it's trying to accomplish" and "Approach" are descriptive; "Review findings" is evaluative. "What's working well" is optional and separate from both.
-- **Skip nitpicks** unless they repeat a pattern or violate project conventions.
+Show the subagent's review as-is rather than re-summarising it. Review-only: don't change code unless the user asks. If it is a pre-PR review, the user may reply by finding number ("fix 2"); apply those fixes here, re-reading files as needed.

@@ -1,6 +1,6 @@
 # Reference
 
-Apply severity and risk rubrics and the agent-written code checks on every review. The thorough checklist and project conventions live in [thorough.md](thorough.md); read it only when the user requests **thorough review** or [adaptive depth](SKILL.md#adaptive-depth) triggers.
+Apply severity and risk rubrics and the agent-written code checks on every review. The thorough checklist and project conventions live in [thorough.md](thorough.md); read it only when the user requests **thorough review** or [adaptive depth](review.md#adaptive-depth) triggers.
 
 ## Severity rubric
 

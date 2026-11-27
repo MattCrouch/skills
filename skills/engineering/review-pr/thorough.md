@@ -1,6 +1,6 @@
 # Thorough review
 
-Read this only for a **thorough review** or when [adaptive depth](SKILL.md#adaptive-depth) triggers. Apply it on top of the rubrics and agent-written code checks in [reference.md](reference.md).
+Read this only for a **thorough review** or when [adaptive depth](review.md#adaptive-depth) triggers. Apply it on top of the rubrics and agent-written code checks in [reference.md](reference.md).
 
 ## Checklist
 
