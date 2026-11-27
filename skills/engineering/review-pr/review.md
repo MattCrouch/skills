@@ -25,7 +25,7 @@ Unless the launcher asked for a **thorough review**, always begin with the fast 
    If the launcher gave a **base branch**, pass `REVIEW_PR_BASE=<branch>`. If it asked for **uncommitted or staged changes only**, use `git diff` or `git diff --cached` instead of the branch diff and mention the scope in the review header.
 
 2. Use PR metadata from `gh` when available — title/body for intent (HTML comments and the CodeRabbit summary stripped, truncated past 7,000 characters), the diff stat for scope, CI and review decision for merge readiness. Compare any test plan in the PR body against what the diff actually covers.
-3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files.
+3. Read the diff output. Open changed source files only when a hunk is unclear or you need surrounding context. Do not read unchanged files. When you need several files or per-path diffs, request them all in one message rather than one after another.
 4. Do not re-read `AGENTS.md` — workspace rules already apply.
 5. Apply [severity and risk rubrics](reference.md#severity-rubric) and [agent-written code checks](reference.md#agent-written-code-checks) from `reference.md`. Cap findings: up to 5 blocking, 5 suggestions, 3 nice-to-haves. Omit empty sections.
 6. Use file paths in findings. Add line numbers only for blocking issues.
