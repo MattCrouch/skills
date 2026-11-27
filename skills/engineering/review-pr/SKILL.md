@@ -30,7 +30,7 @@ In the same message that launches the subagent, tell the user in one line what i
 
 ## 3. Launch the review
 
-Start one subagent (general-purpose) with a short description like `Review feature/foo`. Give it only:
+Start one subagent (general-purpose) with a short description like `Review feature/foo`. Run it at **medium effort**, or leave the effort at its default for a requested **thorough review**. Give it only:
 
 - the repo path, the branch, and any base branch, scope, or thorough flag from step 1
 - the path to this skill's [review.md](review.md), with the instruction to follow it and return the finished review as its final message
