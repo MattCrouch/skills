@@ -3,7 +3,7 @@
 # Run from the repository under review.
 # Optional: REVIEW_PR_BASE=main ./scripts/gather.sh
 
-PR_JSON="$(gh pr view --json baseRefName,title,body,url,headRefName,additions,deletions,changedFiles,files,statusCheckRollup,reviewDecision,latestReviews,state,isDraft 2>/dev/null || true)"
+PR_JSON="$(gh pr view --json baseRefName,title,body,url,headRefName,additions,deletions,changedFiles,statusCheckRollup,reviewDecision,latestReviews,state,isDraft 2>/dev/null || true)"
 
 if [ -n "${REVIEW_PR_BASE:-}" ]; then
   BASE="$REVIEW_PR_BASE"
@@ -20,15 +20,17 @@ fi
 echo "branch: $(git rev-parse --abbrev-ref HEAD)"
 
 if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "null" ] && printf '%s' "$PR_JSON" | jq -e . >/dev/null 2>&1; then
+  # Strip HTML comments and the bot-generated CodeRabbit summary from the body,
+  # then cap what's left. Author notes (scope, test steps, follow-ups) tend to
+  # sit at the end, so the cap is generous.
   printf '%s' "$PR_JSON" | jq -r '
+    def clean: gsub("(?s)<!--.*?-->"; "") | sub("(?s)\n*## Summary by CodeRabbit.*$"; "") | gsub("\n{3,}"; "\n\n");
+    .body |= (. // "" | clean) |
     "PR: \(.title)",
     .url,
-    (if .body != "" then "\n\(.body)\n" else "" end),
+    (if .body != "" then "\n\(.body[0:7000])\(if (.body | length) > 7000 then "\n[body truncated at 7000 of \(.body | length) characters; gh pr view --json body for the rest]" else "" end)\n" else "" end),
     "base: \(.baseRefName) <- head: \(.headRefName) (\(.state)\(if .isDraft then ", draft" else "" end))",
     "stats: \(.changedFiles) files (+\(.additions)/-\(.deletions))",
-    "",
-    "files:",
-    (.files[]? | "  \(.path) (+\(.additions)/-\(.deletions))"),
     "",
     "ci:",
     (
@@ -53,6 +55,31 @@ fi
 git rev-parse --verify "origin/${BASE}" >/dev/null 2>&1 \
   || { echo "error: origin/${BASE} not found — fetch or check base branch"; exit 1; }
 
+# Lockfiles, snapshots, and generated/minified output are noisy and rarely
+# worth reviewing line by line. They still appear in the stat above the diff.
+EXCLUDES=(
+  ':(exclude,glob)**/package-lock.json'
+  ':(exclude,glob)**/pnpm-lock.yaml'
+  ':(exclude,glob)**/yarn.lock'
+  ':(exclude,glob)**/*.lock'
+  ':(exclude,glob)**/*.snap'
+  ':(exclude,glob)**/*.min.*'
+  ':(exclude,glob)**/*.map'
+)
+MAX_DIFF_LINES="${REVIEW_PR_MAX_DIFF_LINES:-1500}"
+
 git log --oneline "origin/${BASE}..HEAD"
 git diff --stat "origin/${BASE}...HEAD"
-git diff "origin/${BASE}...HEAD"
+
+# Run the diff once and reuse it for both the size check and the output.
+DIFF="$(git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}")"
+DIFF_LINES="$(printf '%s' "$DIFF" | grep -c '' || true)"
+if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]; then
+  echo ""
+  echo "diff omitted: ${DIFF_LINES} lines (cap ${MAX_DIFF_LINES})."
+  echo "Diff the highest-risk paths individually: git diff \"origin/${BASE}...HEAD\" -- <path>"
+else
+  echo ""
+  echo "diff (lockfiles, snapshots, minified and map files excluded):"
+  printf '%s\n' "$DIFF"
+fi

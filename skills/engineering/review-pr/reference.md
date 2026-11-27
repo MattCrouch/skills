@@ -1,6 +1,6 @@
 # Reference
 
-Apply severity and risk rubrics and the agent-written code checks on every review. Apply the thorough checklist when the user requests **thorough review** or [adaptive depth](SKILL.md#adaptive-depth) triggers.
+Apply severity and risk rubrics and the agent-written code checks on every review. The thorough checklist and project conventions live in [thorough.md](thorough.md); read it only when the user requests **thorough review** or [adaptive depth](review.md#adaptive-depth) triggers.
 
 ## Severity rubric
 
@@ -38,24 +38,3 @@ Mistakes agents often make. Most show up in the diff without opening other files
 - [ ] Files, refactors, or renames beyond what the change needs
 - [ ] Calls to functions, props, or APIs not defined in the diff — check they exist before flagging
 - [ ] New helpers that duplicate a utility already in the codebase
-
-## Thorough review checklist
-
-Generic checks — apply in addition to [project conventions](#project-conventions) when present:
-
-- [ ] Logic handles edge cases (null/empty, loading, error, permissions)
-- [ ] Types and API shapes match project patterns — no hand-rolled duplicates of generated or shared types
-- [ ] Tests cover new/changed behavior; assertions target observable outcomes, not implementation details
-- [ ] No secrets, debug logging left in, or lint/type suppressions without justification
-- [ ] UI and styling follow existing project patterns in changed files
-- [ ] Change scope is focused — no unrelated drive-by edits
-
-## Project conventions
-
-Before thorough review or when a finding depends on team standards, check the **repo under review** (not the skills repo) for:
-
-- `AGENTS.md`, `CLAUDE.md`, or `.cursor/rules/` — follow these over generic defaults
-- `CONTRIBUTING.md` or `docs/` review guidelines
-- Obvious stack signals in the diff (e.g. GraphQL codegen, a specific UI library) — match conventions visible in neighboring unchanged code
-
-If project docs conflict with the generic checklist, project docs win.
