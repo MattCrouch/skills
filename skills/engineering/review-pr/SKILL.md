@@ -98,7 +98,7 @@ Apply when the user says **thorough review**, or when [adaptive depth](#adaptive
 - When escalating adaptively, get context for the affected files only, with a wider diff (`git diff -U30 "origin/${BASE}...HEAD" -- <file>`) or a ranged read around the hunk, not the whole file
 - Include line numbers on all findings
 - Include the Test plan gaps section
-- Apply the thorough checklist and [project conventions](reference.md#project-conventions) in [reference.md](reference.md)
+- Read [thorough.md](thorough.md) and apply its checklist and project conventions
 
 ## Pre-PR review
 
