@@ -30,7 +30,7 @@ If the user names a **base branch**, run gather with `REVIEW_PR_BASE=<branch>`. 
 
 ## Independent review
 
-If this conversation wrote or edited the changes under review, run the review through a subagent once gather has run. Give it only the gather output and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
+If this conversation wrote or edited the changes under review, run the review through a subagent. Don't run gather yourself first or paste its output into the prompt: the subagent runs gather itself. Give it only the repo path, the base branch if one was named, and the paths to this skill's `SKILL.md` and `reference.md`, not the conversation, and have it return the review in the [output format](#output-format). Show its review as-is rather than re-summarising it. Otherwise, review inline.
 
 Either way, take intent from the PR body, commits, and diff, not from what was discussed. If the diff alone doesn't make the intent clear, that's a finding.
 
