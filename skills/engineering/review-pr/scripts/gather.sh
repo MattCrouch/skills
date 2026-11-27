@@ -20,10 +20,15 @@ fi
 echo "branch: $(git rev-parse --abbrev-ref HEAD)"
 
 if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "null" ] && printf '%s' "$PR_JSON" | jq -e . >/dev/null 2>&1; then
+  # Strip HTML comments and the bot-generated CodeRabbit summary from the body,
+  # then cap what's left. Author notes (scope, test steps, follow-ups) tend to
+  # sit at the end, so the cap is generous.
   printf '%s' "$PR_JSON" | jq -r '
+    def clean: gsub("(?s)<!--.*?-->"; "") | sub("(?s)\n*## Summary by CodeRabbit.*$"; "") | gsub("\n{3,}"; "\n\n");
+    .body |= (. // "" | clean) |
     "PR: \(.title)",
     .url,
-    (if .body != "" then "\n\(.body[0:2000])\(if (.body | length) > 2000 then "\n[body truncated at 2000 characters]" else "" end)\n" else "" end),
+    (if .body != "" then "\n\(.body[0:7000])\(if (.body | length) > 7000 then "\n[body truncated at 7000 of \(.body | length) characters; gh pr view --json body for the rest]" else "" end)\n" else "" end),
     "base: \(.baseRefName) <- head: \(.headRefName) (\(.state)\(if .isDraft then ", draft" else "" end))",
     "stats: \(.changedFiles) files (+\(.additions)/-\(.deletions))",
     "",
