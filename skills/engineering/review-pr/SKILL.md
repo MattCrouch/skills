@@ -65,7 +65,9 @@ Unless the user says **thorough review**, always begin with the fast path — th
 
 **Empty diff**: Say so in one sentence and stop.
 
-**Large PRs**: Summarize by area from the stat, then read only the highest-risk hunks (logic, API, auth, data mutations). Skip re-reading large test-only diffs unless production code changed. If full `git diff` output is truncated, diff per path: `git diff "origin/${BASE}...HEAD" -- packages/foo/`.
+**Large PRs**: Summarize by area from the stat, then read only the highest-risk hunks (logic, API, auth, data mutations). Skip re-reading large test-only diffs unless production code changed. When gather omits the diff for size (over 1,500 lines by default, `REVIEW_PR_MAX_DIFF_LINES` to change), diff per path: `git diff "origin/${BASE}...HEAD" -- packages/foo/`.
+
+**Excluded files**: gather leaves lockfiles, snapshots, and minified/map files out of the diff; they still appear in the stat. Diff one by path only if the change looks suspicious, such as a lockfile changing with no manifest change.
 
 ## Adaptive depth
 

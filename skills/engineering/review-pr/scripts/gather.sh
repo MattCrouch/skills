@@ -53,6 +53,29 @@ fi
 git rev-parse --verify "origin/${BASE}" >/dev/null 2>&1 \
   || { echo "error: origin/${BASE} not found — fetch or check base branch"; exit 1; }
 
+# Lockfiles, snapshots, and generated/minified output are noisy and rarely
+# worth reviewing line by line. They still appear in the stat above the diff.
+EXCLUDES=(
+  ':(exclude,glob)**/package-lock.json'
+  ':(exclude,glob)**/pnpm-lock.yaml'
+  ':(exclude,glob)**/yarn.lock'
+  ':(exclude,glob)**/*.lock'
+  ':(exclude,glob)**/*.snap'
+  ':(exclude,glob)**/*.min.*'
+  ':(exclude,glob)**/*.map'
+)
+MAX_DIFF_LINES="${REVIEW_PR_MAX_DIFF_LINES:-1500}"
+
 git log --oneline "origin/${BASE}..HEAD"
 git diff --stat "origin/${BASE}...HEAD"
-git diff "origin/${BASE}...HEAD"
+
+DIFF_LINES="$(git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}" | wc -l | tr -d ' ')"
+if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ]; then
+  echo ""
+  echo "diff omitted: ${DIFF_LINES} lines (cap ${MAX_DIFF_LINES})."
+  echo "Diff the highest-risk paths individually: git diff \"origin/${BASE}...HEAD\" -- <path>"
+else
+  echo ""
+  echo "diff (lockfiles, snapshots, minified and map files excluded):"
+  git diff "origin/${BASE}...HEAD" -- . "${EXCLUDES[@]}"
+fi
